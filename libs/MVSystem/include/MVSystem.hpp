@@ -2,22 +2,23 @@
 #define MVSYSTEM_HPP
 
 #include <string>
-#include <vector>
+#include <queue>
+#include "RW.hpp"
+
+RW rw;
 
 class MVSystem{
 
 public:
-    MVSystem(const float distance, const float conv_speed, const std::string data_src_path);
+    MVSystem();
 
     void read_data();
     void print_data();
 
 
 private:
-    const float distance_;
-    const float conv_speed_;
-    std::string data_src_path_;
-    std::vector<std::string> data_;
+    
+    std::string data_path_;
 
 };
 

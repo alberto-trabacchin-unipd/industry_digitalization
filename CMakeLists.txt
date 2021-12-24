@@ -24,6 +24,7 @@ add_subdirectory(libs/PickPlace)
 add_subdirectory(libs/MobileRobot)
 add_subdirectory(libs/Cobot)
 add_subdirectory(libs/Box)
+add_subdirectory(libs/Item)
 
 
 

@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "condition_variable": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "vector": "cpp"
     }
 }

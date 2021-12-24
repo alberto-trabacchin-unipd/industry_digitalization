@@ -15,5 +15,6 @@ target_link_libraries(application
     PRIVATE PSE::MobileRobot
     PRIVATE PSE::Cobot
     PRIVATE PSE::Box
+    PRIVATE PSE::Item
     PRIVATE pthread
 )
