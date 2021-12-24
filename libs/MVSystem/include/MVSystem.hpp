@@ -3,23 +3,21 @@
 
 #include <string>
 #include <queue>
-#include "RW.hpp"
+#include "Item.hpp"
 
-RW rw;
+//RW rw;
 
 class MVSystem{
 
 public:
-    MVSystem();
-
+    MVSystem(std::string data_path);
+    void thread_fun();
     void read_data();
-    void print_data();
-
+    Item get_last_item() { return queue_items_.back(); };
 
 private:
-    
     std::string data_path_;
-
+    std::queue<Item> queue_items_;
 };
 
 #endif

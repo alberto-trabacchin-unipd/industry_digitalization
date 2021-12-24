@@ -13,6 +13,7 @@ target_include_directories(MVSystem
 
 target_link_libraries(MVSystem
         PUBLIC PSE::RW
+        PUBLIC PSE::Item
         )
 
 add_library(PSE::MVSystem ALIAS MVSystem)
