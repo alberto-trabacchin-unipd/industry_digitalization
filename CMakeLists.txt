@@ -17,7 +17,13 @@ set(TARGET_GROUP production CACHE STRING "Group to build")
 
 
 #Include below libraries you want to implement
-#add_subdirectory(lib/hash)
+add_subdirectory(libs/WareHouse_DB)
+add_subdirectory(libs/MVSystem)
+add_subdirectory(libs/RW)
+add_subdirectory(libs/PickPlace)
+add_subdirectory(libs/MobileRobot)
+add_subdirectory(libs/Cobot)
+add_subdirectory(libs/Box)
 
 
 

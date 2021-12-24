@@ -8,5 +8,12 @@ add_executable(application src/main.cpp)
 
 target_link_libraries(application
     #Link below libraries for building the application (exa. PRIVATE PSE::libraryname)
-    #PRIVATE PSE::libraryname
+    PRIVATE PSE::WareHouse_DB
+    PRIVATE PSE::MVSystem
+    PRIVATE PSE::RW
+    PRIVATE PSE::PickPlace
+    PRIVATE PSE::MobileRobot
+    PRIVATE PSE::Cobot
+    PRIVATE PSE::Box
+    PRIVATE pthread
 )
