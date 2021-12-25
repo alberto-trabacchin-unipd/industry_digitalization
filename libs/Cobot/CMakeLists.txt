@@ -13,6 +13,7 @@ target_include_directories(Cobot
         )
 
 target_link_libraries(Cobot
+        PUBLIC PSE::RW
         )
 
 add_library(PSE::Cobot ALIAS Cobot)

@@ -13,6 +13,7 @@ target_include_directories(RW
         )
 
 target_link_libraries(RW
+        PUBLIC PSE::Item
         )
 
 add_library(PSE::RW ALIAS RW)

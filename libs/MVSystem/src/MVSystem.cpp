@@ -1,7 +1,7 @@
 #include <string>
+#include <vector>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include <iostream>
 #include <algorithm>
 #include <iterator>
@@ -14,7 +14,16 @@ MVSystem::MVSystem(std::string data_path)
         : data_path_(data_path) {}
 
 void MVSystem::thread_fun() {
+    while (true) {
+        read_data();
 
+        while (!queue_items_.empty()) {
+            rw.start_write();
+            rw.push_data(queue_items_.front());
+            queue_items_.pop();
+            rw.end_write();
+        }
+    }
 }
 
 void MVSystem::read_data() {

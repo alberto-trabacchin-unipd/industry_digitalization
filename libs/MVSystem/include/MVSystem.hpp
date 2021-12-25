@@ -3,9 +3,13 @@
 
 #include <string>
 #include <queue>
-#include "Item.hpp"
 
-//RW rw;
+#include "Item.hpp"
+#include "RW.hpp"
+
+extern RW rw;
+extern std::mutex cout_mtx;
+
 
 class MVSystem{
 
