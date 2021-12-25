@@ -23,12 +23,12 @@ Cobot::Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, std::strin
     pick_count = 0;
 }
 
-void Cobot::print_message(Item* item) {
+void Cobot::print_message(Item item) {
     std::unique_lock<std::mutex> mtx_lck(cout_mtx);
     std::cout << "(" << pick_count << ") ";
     std::cout << "Cobot " << id_;
-    std::cout << ": prelevato pezzo " << item->get_name();
-    std::cout << " al tempo " << item->get_str_time() << std::endl;
+    std::cout << ": prelevato pezzo " << item.get_name();
+    std::cout << " al tempo " << item.get_str_time() << std::endl;
 }
 
 void Cobot::calc_pick_time(Item* item) {
@@ -51,13 +51,16 @@ void Cobot::add_time(unsigned int pick_time, Item* item) {
     item->increment_min(minutes);
 }
 
-void Cobot::thread_fun() {
+void Cobot::thread_fun(std::string id) {
     while (true) {
         rw->start_read();
         Item tmp_item = rw->pop_data();
         rw->end_read();
         calc_pick_time(&tmp_item);
         pick_count++;
-        print_message(&tmp_item);
+        pp.start_put(id);
+        pp.put_item(tmp_item);
+        pp.end_put(id);
+        print_message(tmp_item);
     }
 }

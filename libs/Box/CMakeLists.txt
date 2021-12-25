@@ -12,6 +12,7 @@ target_include_directories(Box
         )
 
 target_link_libraries(Box
+        PUBLIC PSE::Item
         )
 
 add_library(PSE::Box ALIAS Box)

@@ -13,6 +13,8 @@ target_include_directories(MobileRobot
         )
 
 target_link_libraries(MobileRobot
+        PUBLIC PSE::PickPlace
+        PUBLIC PSE::Box
         )
 
 add_library(PSE::MobileRobot ALIAS MobileRobot)

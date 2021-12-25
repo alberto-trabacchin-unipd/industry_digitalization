@@ -15,9 +15,11 @@ class Cobot {
 
 public:
     Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, std::string id);
+    Cobot(std::string conveyor_vel, std::string conveyor_len, MVSystem* mvs, std::string id)
+            : Cobot(std::stod(conveyor_vel), std::stod(conveyor_len), mvs, id) {}
 
-    void print_message(Item* item);
-    void thread_fun();
+    void print_message(Item item);
+    void thread_fun(std::string id);
     void calc_pick_time(Item* item);
 
 private:

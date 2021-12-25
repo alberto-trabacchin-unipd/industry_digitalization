@@ -13,6 +13,8 @@ target_include_directories(PickPlace
         )
 
 target_link_libraries(PickPlace
+        PUBLIC PSE::Box
+        PUBLIC PSE::Item
         )
 
 add_library(PSE::PickPlace ALIAS PickPlace)
