@@ -14,7 +14,7 @@ MVSystem::MVSystem(std::string data_path)
         : data_path_(data_path) {}
 
 void MVSystem::thread_fun() {
-    while (true) {
+    //while (true) {
         read_data();
 
         while (!queue_items_.empty()) {
@@ -23,7 +23,7 @@ void MVSystem::thread_fun() {
             queue_items_.pop();
             rw.end_write();
         }
-    }
+    //}
 }
 
 void MVSystem::read_data() {

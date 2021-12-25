@@ -7,7 +7,6 @@
 #include "Item.hpp"
 #include "RW.hpp"
 
-extern RW rw;
 extern std::mutex cout_mtx;
 
 
@@ -18,6 +17,7 @@ public:
     void thread_fun();
     void read_data();
     Item get_last_item() { return queue_items_.back(); };
+    RW rw;
 
 private:
     std::string data_path_;

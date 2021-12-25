@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <mutex>
 
 #include "Item.hpp"
 
@@ -22,4 +23,14 @@ void Item::print() {
     std::cout << "mm: " << pick_min_ << std::endl;
     std::cout << "ss: " << pick_sec_ << std::endl;
     std::cout << "position: " << position_ << std::endl;
+}
+
+std::string Item::get_str_time() {
+    std::string str_min{std::to_string(pick_min_)};
+    if (pick_min_ < 10)
+        str_min = "0" + str_min;
+    std::string str_sec{std::to_string(pick_sec_)};
+    if (pick_sec_ < 10)
+        str_sec = "0" + str_sec;
+    return (str_min + ":" + str_sec);
 }

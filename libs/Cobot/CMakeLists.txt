@@ -14,6 +14,9 @@ target_include_directories(Cobot
 
 target_link_libraries(Cobot
         PUBLIC PSE::RW
+        PUBLIC PSE::PickPlace
+        PUBLIC PSE::Item
+        PUBLIC PSE::MVSystem
         )
 
 add_library(PSE::Cobot ALIAS Cobot)
