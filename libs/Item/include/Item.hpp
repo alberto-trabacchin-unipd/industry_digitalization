@@ -16,11 +16,13 @@ public:
     std::string get_name() { return name_; };
     std::vector<std::string> get_time();
     unsigned int get_sec() { return pick_sec_; };
+    unsigned int get_min() { return pick_min_; };
     void set_sec(unsigned int sec) { pick_sec_ = sec; };
     void increment_min(unsigned int plus_min) { pick_min_ += plus_min; };
     void increment_sec(unsigned int plus_sec) { pick_sec_ += plus_sec; };
     void print();
     std::string get_str_time();
+    double get_pos() { return position_; };
 
 private:
     unsigned int pick_min_;

@@ -4,69 +4,47 @@
 #include "Item.hpp"
 
 
-PickPlace::PickPlace() {
-    occupied_ = false;
-    box_avail_ = true;
-    n_boxes = 0;
-    box_ptr_ = place_new_box();
-}
+PickPlace::PickPlace() :  cobot_box_(Box{1}), waiting_(2, true), n_box_(1) {}
+
 
 void PickPlace::start_put(unsigned int id) {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
 
-    while (occupied_ || box_ptr_->is_full()) {
-        if (id == 1) {
-            waiting1_ = true;
-            canPush1_.wait(mtx_lck);
-        }
-        else if (id == 2) {
-            waiting2_ = true;
-            canPush2_.wait(mtx_lck);
-        }
+    while (!waiting_.at(OTHER_COBOT_ID) || cobot_box_.is_full()) {
+        waiting_.at(id) = true;//
+        canPush_.wait(mtx_lck);//
+        waiting_.at(id) = false;
     }
-
-    occupied_ = true;
+    //occupied_ = true;
 }
 
 void PickPlace::put_item(Item item) {
-    box_ptr_->put_item(item);
+    cobot_box_.put_item(item);
 }
 
 void PickPlace::end_put(unsigned int id) {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
-    occupied_ = false;
-    if (box_ptr_->is_full())
+    //occupied_ = false;
+    waiting_.at(id) = true;
+
+    if (cobot_box_.is_full())
         canCarry_.notify_one();
-    else if (id == 1) {
-        waiting1_ = false;
-        if (waiting2_) canPush2_.notify_one();
-    }
-    else if (id == 2) {
-        waiting2_ = false;
-        if (waiting1_) canPush1_.notify_one();
-    }
+    else
+        canPush_.notify_one();
 }
 
 void PickPlace::start_carry() {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
-    while (occupied_ || !box_ptr_->is_full())
+    while (!waiting_.at(0) || !waiting_.at(1) || !cobot_box_.is_full())
         canCarry_.wait(mtx_lck);
-    
-    box_avail_ = false;
-    occupied_ = true;
 }
 
-std::shared_ptr<Box> PickPlace::carry_box() {
-    std::shared_ptr<Box> tmp = box_ptr_;
-    box_ptr_ = place_new_box();
-    return tmp;
+Box PickPlace::carry_box() {
+    return cobot_box_;
 }
 
 void PickPlace::end_carry() {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
-    occupied_ = false;
-    if (waiting1_)
-        canPush1_.notify_one();
-    else
-        canPush2_.notify_one();
+    cobot_box_ = Box{++n_box_};
+    canPush_.notify_all();
 }

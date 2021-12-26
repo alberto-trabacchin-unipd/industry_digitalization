@@ -14,13 +14,13 @@ extern std::mutex cout_mtx;
 class Cobot {
 
 public:
-    Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, unsigned int id);
-    Cobot(std::string conveyor_vel, std::string conveyor_len, MVSystem* mvs, unsigned int id)
-            : Cobot(std::stod(conveyor_vel), std::stod(conveyor_len), mvs, id) {}
+    Cobot(double conveyor_len, double conveyor_vel, MVSystem &mvs, unsigned int id);
+    Cobot(std::string conveyor_len, std::string conveyor_vel, MVSystem &mvs, unsigned int id)
+            : Cobot(std::stod(conveyor_len), std::stod(conveyor_vel), mvs, id) {}
 
-    void print_message(Item item);
+    void print_message(Item item, unsigned int id);
     void thread_fun();
-    void calc_pick_time(Item* item);
+    void set_pick_time(Item &item, unsigned int minutes, unsigned int seconds);
 
 private:
     double conveyor_vel_;
@@ -28,8 +28,6 @@ private:
     unsigned int pick_count;
     unsigned int id_;
     RW *rw;
-
-    void add_time(unsigned int pick_time, Item* item);
 
 };
 

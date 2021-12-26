@@ -55,7 +55,8 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "typeinfo": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "iomanip": "cpp"
     },
     "cmake.configureOnOpen": false
 }

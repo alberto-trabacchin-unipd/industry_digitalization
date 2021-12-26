@@ -8,21 +8,21 @@
 #include "Box.hpp"
 
 void WareHouse_DB::stock_box(Box box) {
-    box.set_id(++n_boxes_);
     storage_.push_back(box);
 }
 
-Box WareHouse_DB::find_box(unsigned int id) {
+bool WareHouse_DB::find_box(unsigned int id, Box &box) {
     std::_List_const_iterator<Box> ptr = std::find_if(storage_.cbegin(), storage_.cend(),
-            [&] (Box box) {return (box.get_id() == id); });
-    
+            [&] (Box tmp) {return (tmp.get_id() == id); });
     if (ptr == storage_.cend()) {
         std::unique_lock<std::mutex> cout_mtx;
-        std::cerr << "Box does not exist";
-        exit(EXIT_FAILURE);
+        std::cerr << "Box does not exist\n";
+        return false;
     }
-
-    return *ptr;
+    else {
+        box = *ptr;
+        return true;
+    }
 }
 
 std::string WareHouse_DB::get_str_info_box(Box box) {

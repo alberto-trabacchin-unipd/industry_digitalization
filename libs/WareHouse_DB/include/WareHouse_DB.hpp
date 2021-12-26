@@ -16,8 +16,9 @@ class WareHouse_DB {
 public:
     WareHouse_DB() : n_boxes_(0) {}
     void stock_box(Box box);
-    Box find_box(unsigned int id);
+    //Box* find_box(unsigned int id);
     void print_all_boxes();
+    bool find_box(unsigned int id, Box &box);
 
 private:
     std::list<Box> storage_;

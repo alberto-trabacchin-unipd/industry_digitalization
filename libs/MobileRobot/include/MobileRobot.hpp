@@ -14,10 +14,13 @@ extern WareHouse_DB whdb;
 class MobileRobot {
 
 public:
+    MobileRobot() : mob_robot_box(Box{1}) {}
     void thread_fun();
+    void print_message();
 
 private:
-    std::shared_ptr<Box> box_ptr_;
+    //std::shared_ptr<Box> box_ptr_;
+    Box mob_robot_box;
 
 };
 
