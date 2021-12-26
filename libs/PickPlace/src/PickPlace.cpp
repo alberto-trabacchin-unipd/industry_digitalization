@@ -7,6 +7,7 @@
 PickPlace::PickPlace() {
     occupied_ = false;
     box_avail_ = true;
+    n_boxes = 0;
     box_ptr_ = place_new_box();
 }
 

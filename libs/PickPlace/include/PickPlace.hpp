@@ -29,6 +29,7 @@ private:
     bool waiting2_;
     bool occupied_;
     bool box_avail_;
+    unsigned int n_box;
 };
 
 #endif
