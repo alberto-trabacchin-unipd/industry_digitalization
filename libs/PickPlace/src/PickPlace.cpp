@@ -10,15 +10,15 @@ PickPlace::PickPlace() {
     box_ptr_ = place_new_box();
 }
 
-void PickPlace::start_put(std::string id) {
+void PickPlace::start_put(unsigned int id) {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
 
     while (occupied_ || box_ptr_->is_full()) {
-        if (id == "1") {
+        if (id == 1) {
             waiting1_ = true;
             canPush1_.wait(mtx_lck);
         }
-        else if (id == "2") {
+        else if (id == 2) {
             waiting2_ = true;
             canPush2_.wait(mtx_lck);
         }
@@ -31,16 +31,16 @@ void PickPlace::put_item(Item item) {
     box_ptr_->put_item(item);
 }
 
-void PickPlace::end_put(std::string id) {
+void PickPlace::end_put(unsigned int id) {
     std::unique_lock<std::mutex> mtx_lck(mutex_);
     occupied_ = false;
     if (box_ptr_->is_full())
         canCarry_.notify_one();
-    else if (id == "1") {
+    else if (id == 1) {
         waiting1_ = false;
         if (waiting2_) canPush2_.notify_one();
     }
-    else if (id == "2") {
+    else if (id == 2) {
         waiting2_ = false;
         if (waiting1_) canPush1_.notify_one();
     }

@@ -11,7 +11,7 @@
 PickPlace pp;
 
 
-Cobot::Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, std::string id) {
+Cobot::Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, unsigned int id) {
     if (conveyor_vel <= 0 || conveyor_len <= 0) {
         std::cerr << "ERR: conveyor parameters not valid!\n";
         exit(EXIT_FAILURE);
@@ -25,7 +25,7 @@ Cobot::Cobot(double conveyor_vel, double conveyor_len, MVSystem* mvs, std::strin
 
 void Cobot::print_message(Item item) {
     std::unique_lock<std::mutex> mtx_lck(cout_mtx);
-    std::cout << "(" << pick_count << ") ";
+    std::cout << "(" << pick_count << ")\t";
     std::cout << "Cobot " << id_;
     std::cout << ": prelevato pezzo " << item.get_name();
     std::cout << " al tempo " << item.get_str_time() << std::endl;
@@ -51,16 +51,16 @@ void Cobot::add_time(unsigned int pick_time, Item* item) {
     item->increment_min(minutes);
 }
 
-void Cobot::thread_fun(std::string id) {
+void Cobot::thread_fun() {
     while (true) {
         rw->start_read();
         Item tmp_item = rw->pop_data();
         rw->end_read();
         calc_pick_time(&tmp_item);
         pick_count++;
-        pp.start_put(id);
+        pp.start_put(id_);
         pp.put_item(tmp_item);
-        pp.end_put(id);
+        pp.end_put(id_);
         print_message(tmp_item);
     }
 }

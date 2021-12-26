@@ -1,38 +1,29 @@
 #ifndef WAREHOUSE_DB_HPP
 #define WAREHOUSE_DB_HPP
 
-#include <vector>
 #include <mutex>
 #include <condition_variable>
+#include <list>
+#include <vector>
+#include <string>
+#include "Box.hpp"
+
+extern std::mutex cout_mtx;
 
 
-class DataBase {
+class WareHouse_DB {
 
 public:
-    DataBase();
-
-    void start_write();
-    void write_data(int data);
-    void end_write();
-
-    void start_read();
-    int read_data();
-    void end_read();
-
-    void print_data();
-
+    WareHouse_DB() : n_boxes_(0) {}
+    void stock_box(Box box);
+    Box find_box(unsigned int id);
+    void print_all_boxes();
 
 private:
-    std::vector<int> data_list_mv_;
-    std::mutex mutex_;
-    std::condition_variable canWrite_;
-    std::condition_variable canRead_;
-    std::vector<int> data_list_wh_;
+    std::list<Box> storage_;
+    unsigned int n_boxes_;
 
-    size_t n_writers_;
-    size_t n_readers_;
-    size_t n_wait_writers_;
-    size_t n_wait_readers_;
+    std::string get_str_info_box(Box box);
 
 };
 

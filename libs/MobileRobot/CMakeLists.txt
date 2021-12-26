@@ -15,6 +15,7 @@ target_include_directories(MobileRobot
 target_link_libraries(MobileRobot
         PUBLIC PSE::PickPlace
         PUBLIC PSE::Box
+        PUBLIC PSE::WareHouse_DB
         )
 
 add_library(PSE::MobileRobot ALIAS MobileRobot)

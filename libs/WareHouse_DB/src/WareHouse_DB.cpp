@@ -1,63 +1,44 @@
 #include <mutex>
-#include <condition_variable>
 #include <algorithm>
+#include <string>
 #include <iostream>
+#include <vector>
 
 #include "WareHouse_DB.hpp"
+#include "Box.hpp"
 
+void WareHouse_DB::stock_box(Box box) {
+    box.set_id(++n_boxes_);
+    storage_.push_back(box);
+}
 
-DataBase::DataBase()
-    : n_writers_(0),n_readers_(0), n_wait_writers_(0), n_wait_readers_(0) {}
-
-
-void DataBase::start_write() {
-    std::unique_lock<std::mutex> mtx_lck(mutex_);
-    while (n_readers_ != 0 || n_writers_ != 0 || (n_wait_readers_ != 0 && !data_list_mv_.empty())) {
-        n_wait_writers_++;
-        canWrite_.wait(mtx_lck);
-        n_wait_writers_--;
+Box WareHouse_DB::find_box(unsigned int id) {
+    std::_List_const_iterator<Box> ptr = std::find_if(storage_.cbegin(), storage_.cend(),
+            [&] (Box box) {return (box.get_id() == id); });
+    
+    if (ptr == storage_.cend()) {
+        std::unique_lock<std::mutex> cout_mtx;
+        std::cerr << "Box does not exist";
+        exit(EXIT_FAILURE);
     }
-    n_writers_++;
+
+    return *ptr;
 }
 
+std::string WareHouse_DB::get_str_info_box(Box box) {
+    std::string str;
+    str.append("id: " + std::to_string(box.get_id()) + "\n");
+    str.append("items: \n");
+    str.append(box.get_str_items());
 
-void DataBase::write_data(int data) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_);
-    data_list_mv_.push_back(data);
+    return str;
 }
 
+void WareHouse_DB::print_all_boxes() {
+    std::list<Box>::iterator ptr;
 
-void DataBase::end_write() {
-    std::unique_lock<std::mutex> mtx_lck(mutex_);
-    n_writers_--;
-    if (n_writers_ == 0 && n_wait_readers_!= 0)
-        canRead_.notify_all();
-    else
-        canWrite_.notify_one();
-}
-
-
-void DataBase::start_read() {
-    std::unique_lock<std::mutex> mtx_lck(mutex_);
-    while (n_writers_ != 0 || n_wait_writers_ != 0) {
-        n_wait_readers_++;
-        canWrite_.wait(mtx_lck);
-        n_wait_writers_--;
+    for (ptr = storage_.begin(); ptr != storage_.end(); ptr++) {
+        std::cout << ptr->get_id() << ": ";
+        std::cout << ptr->get_str_items() << std::endl;
     }
-    n_readers_++;
-}
-
-
-int DataBase::read_data() {
-    return 0;
-}
-
-void DataBase::end_read() {
-
-}
-
-
-void DataBase::print_data() {
-    std::for_each(data_list_mv_.cbegin(), data_list_mv_.cend(),
-            [](int i) { std::cout << i << std::endl; });
 }

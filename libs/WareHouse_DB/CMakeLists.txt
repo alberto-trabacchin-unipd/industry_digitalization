@@ -12,6 +12,8 @@ target_include_directories(WareHouse_DB
         )
 
 target_link_libraries(WareHouse_DB
+        PUBLIC PSE::Box
+        PUBLIC PSE::Item
         )
 
 add_library(PSE::WareHouse_DB ALIAS WareHouse_DB)

@@ -4,9 +4,11 @@
 #include <memory>
 #include "Box.hpp"
 #include "PickPlace.hpp"
+#include "WareHouse_DB.hpp"
 
 extern PickPlace pp;
 extern std::mutex cout_mtx;
+extern WareHouse_DB whdb;
 
 
 class MobileRobot {

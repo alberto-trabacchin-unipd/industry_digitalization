@@ -11,9 +11,9 @@ class PickPlace {
 
 public:
     PickPlace();
-    void start_put(std::string id);
+    void start_put(unsigned int id);
     void put_item(Item item);
-    void end_put(std::string id);
+    void end_put(unsigned int id);
     void start_carry();
     std::shared_ptr<Box> carry_box();
     void end_carry();
