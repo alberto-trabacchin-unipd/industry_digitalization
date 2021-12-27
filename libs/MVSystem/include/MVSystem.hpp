@@ -8,6 +8,7 @@
 #include "RW.hpp"
 
 extern std::mutex cout_mtx;
+extern bool shutdown;
 
 
 class MVSystem{

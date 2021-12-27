@@ -69,7 +69,7 @@ void Cobot::thread_fun() {
     steady_clock::time_point time_end;
     unsigned int waiting_time;
 
-    while (true) {
+    while (!shutdown) {
         rw->start_read();
         Item item = rw->pop_data();
         rw->end_read();
@@ -87,4 +87,7 @@ void Cobot::thread_fun() {
         pp.end_put(id_-1);
         print_message(item, box_id);
     }
+    
+    std::unique_lock<std::mutex> cout_mtx;
+    std::cout << "Cobot " << id_ << " spento\n";
 }

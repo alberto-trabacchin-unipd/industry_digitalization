@@ -16,7 +16,7 @@ bool WareHouse_DB::find_box(unsigned int id, Box &box) {
             [&] (Box tmp) {return (tmp.get_id() == id); });
     if (ptr == storage_.cend()) {
         std::unique_lock<std::mutex> cout_mtx;
-        std::cerr << "Box does not exist\n";
+        std::cerr << "Box " << id << " does not exist\n";
         return false;
     }
     else {

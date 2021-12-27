@@ -9,6 +9,7 @@
 extern PickPlace pp;
 extern std::mutex cout_mtx;
 extern WareHouse_DB whdb;
+extern bool shutdown;
 
 
 class MobileRobot {

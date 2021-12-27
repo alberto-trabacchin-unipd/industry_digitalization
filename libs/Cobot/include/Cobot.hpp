@@ -9,6 +9,7 @@
 #include "Item.hpp"
 
 extern std::mutex cout_mtx;
+extern bool shutdown;
 
 
 class Cobot {

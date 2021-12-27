@@ -10,6 +10,7 @@
 #include <mutex>
 #include <condition_variable>
 
+extern bool shutdown;
 
 class PickPlace {
 
@@ -22,6 +23,7 @@ public:
     Box carry_box();
     void end_carry();
     unsigned int get_n_box() { return n_box_; };
+    bool check_cobots_status() { return (waiting_.at(1) && waiting_.at(2)); };
     //std::shared_ptr<Box> place_new_box() { return std::make_shared<Box>(0); };
 
 private:
@@ -38,6 +40,7 @@ private:
     //bool occupied_;
     //bool box_avail_;
     unsigned int n_box_;
+    bool left_;
 };
 
 #endif
