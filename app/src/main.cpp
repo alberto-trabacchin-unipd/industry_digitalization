@@ -8,7 +8,7 @@
 
 
 const unsigned int SPEED_FAC = 50;
-unsigned int n_cobots = 2;
+unsigned int n_cobots = 3;
 Monitor mon;
 bool shutdown = false;
 

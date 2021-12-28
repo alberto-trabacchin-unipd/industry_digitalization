@@ -8,7 +8,6 @@
 #include "Box.hpp"
 
 
-
 Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
                      cobots_box_(Box{1}), placing_(n_cobots, false), mobile_box_(Box{1}), n_boxes_(1)  {}
 
