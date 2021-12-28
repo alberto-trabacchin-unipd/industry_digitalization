@@ -156,9 +156,14 @@ void find_box(size_t id) {
     std::cout << box.get_str_items();
 }
 
-void check_input_param (int argc) {
+void check_input_param (int argc, std::vector<std::string> &data_paths) {
     if ((argc % 2) == 0 || static_cast<unsigned int> (argc/2) != n_cobots) {
         std::cerr << "ERR: input parameters are not valid\n";
+        exit(EXIT_FAILURE);
+    }
+    size_t n = static_cast<size_t> (argc/2);
+    if (n_cobots >= data_paths.size() || n >= data_paths.size()) {
+        std::cerr << "ERR: too few file paths.\n";
         exit(EXIT_FAILURE);
     }
 }

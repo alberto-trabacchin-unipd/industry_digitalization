@@ -68,18 +68,10 @@ void Monitor::end_carry() {
 }
 
 void Monitor::print_cobot_message(size_t i, Item &item, size_t n_box) {
+    std::string str {"abcdefghijklmnopqrstuvwxyz"};
     std::unique_lock<std::mutex> cout_lck(cout_mutex_);
-    switch(i) {
-        case 0:
-            std::cout << "Cobot linea di trasporto a: ";
-            break;
-        case 1:
-            std::cout << "Cobot linea di trasporto b: ";
-            break;
-        case 2:
-            std::cout << "Cobot linea di trasporto c: ";
-            break;
-    }
+    
+    std::cout << "Cobot linea di trasporto " << str.at(i) << ": ";
     std::cout << "recuperato componente di tipo " << item.get_name();
     std::cout << " al tempo " << item.get_str_time();
     std::cout << std::fixed;

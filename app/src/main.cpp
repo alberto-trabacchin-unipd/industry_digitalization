@@ -6,9 +6,10 @@
 #include "data_mng.h"
 #include "Monitor.hpp"
 
-
+//Parametri da impostare arbitrariamente
 const unsigned int SPEED_FAC = 50;
-unsigned int n_cobots = 3;
+unsigned int n_cobots = 4;
+
 Monitor mon;
 bool shutdown = false;
 
@@ -20,10 +21,13 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> data_paths {
         "../mv_readings/arrivi_linea_a.txt",
         "../mv_readings/arrivi_linea_b.txt",
-        "../mv_readings/arrivi_linea_c.txt"
+        "../mv_readings/arrivi_linea_c.txt",
+        "../mv_readings/arrivi_linea_d.txt",
+        "../mv_readings/arrivi_linea_e.txt",
+        "../mv_readings/arrivi_linea_f.txt",
     };
 
-    check_input_param(argc);
+    check_input_param(argc, data_paths);
 
     start_mvs_threads(mvs_threads, data_paths);
     start_cobot_threads(cobots_threads, argv);
