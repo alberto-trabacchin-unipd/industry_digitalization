@@ -14,6 +14,8 @@
 
 #include "Item.hpp"
 #include "data_mng.h"
+#include "Box.hpp"
+#include "Monitor.hpp"
 
 
 Item read_data(std::string line) {
@@ -61,7 +63,7 @@ void set_pick_time(Item &item, double conv_len, double conv_vel) {
     item.set_MM(item.get_MM() + minutes);   
 }
 
-/*
+
 void mv_system_thread_fun(size_t i, std::string data_path) {
     std::ifstream stream(data_path);
     if (!stream) {
@@ -161,4 +163,3 @@ unsigned int check_input_param (int argc) {
     }
     return (argc / 2);
 }
-*/
