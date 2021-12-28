@@ -7,8 +7,8 @@
 #include "Monitor.hpp"
 
 //Parametri da impostare arbitrariamente
-const unsigned int SPEED_FAC = 50;
-unsigned int n_cobots = 4;
+const unsigned int SPEED_FAC = 10;
+unsigned int n_cobots = 2;
 
 Monitor mon;
 bool shutdown = false;
@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     std::thread graceful_exit_thread(graceful_exit_thread_fun);
     std::thread server_thread(server_thread_fun);
 
+    find_box(1);
 
     for (auto &t : mvs_threads)
     t.join();

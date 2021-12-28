@@ -11,11 +11,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <iostream>
 
 #include "Item.hpp"
 #include "data_mng.h"
 #include "Box.hpp"
 #include "Monitor.hpp"
+
+auto t_start = std::chrono::steady_clock::now();
 
 
 Item read_data(std::string line) {
@@ -37,13 +40,15 @@ unsigned int calc_waiting_sec(std::chrono::steady_clock::time_point t_begin,
     using std::chrono::steady_clock;
     using std::chrono::duration_cast;
     auto t_end = steady_clock::now();
-    int elaps_time =  static_cast<unsigned int>
-                            (duration_cast<std::chrono::seconds>(t_end - t_begin).count());
-    unsigned int t_conv = static_cast<unsigned int> (conv_len / conv_vel);
+    unsigned int elaps_time =  static_cast<unsigned int>
+                            (duration_cast<std::chrono::milliseconds>(t_end - t_begin).count());
+    unsigned int t_conv = static_cast<unsigned int> (1000 * conv_len / conv_vel);
+    unsigned int t_mvs = (MM * 60 + SS) * 1000;
 
-    unsigned int waiting_time = t_conv + MM*60 + SS - elaps_time;
+    //unsigned int waiting_time = (t_conv*1000 + MM*60*1000 + SS*1000 - elaps_time) / SPEED_FAC;
+    unsigned int waiting_time = t_mvs - elaps_time + t_conv;
 
-    return waiting_time;
+    return waiting_time / SPEED_FAC;
 
 }
 
@@ -89,7 +94,6 @@ void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
 
     Item item{};
     size_t n_box;
-    auto t_start = steady_clock::now();
 
     while (!shutdown) {
         mon.start_read(i);
@@ -97,10 +101,11 @@ void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
         mon.end_read(i);
 
         //sleep
-        unsigned int waiting_seconds = calc_waiting_sec(t_start, item.get_MM(), item.get_SS(), 
+        unsigned int waiting_millis = calc_waiting_sec(t_start, item.get_MM(), item.get_SS(), 
                                                         conv_len, conv_vel);
         
-        std::this_thread::sleep_for(milliseconds((waiting_seconds * 1000) / SPEED_FAC));
+        std::cout << i << " deve aspettare per " << waiting_millis << " millisecondi\n";
+        std::this_thread::sleep_for(milliseconds(waiting_millis));
         set_pick_time(item, conv_len, conv_vel);
 
         mon.start_place(i);
