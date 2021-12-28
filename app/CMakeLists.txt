@@ -13,5 +13,6 @@ target_link_libraries(application
     PRIVATE PSE::Item
     PRIVATE PSE::data_mng
     PRIVATE PSE::Monitor
+    #PRIVATE PSE::Client
     PRIVATE pthread
 )

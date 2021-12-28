@@ -9,8 +9,8 @@
 
 
 
-Monitor::Monitor() : item_data_(N_COBOTS), canUseData_(N_COBOTS), data_ready_(N_COBOTS, false),
-                     cobots_box_(Box{1}), placing_(N_COBOTS, false), mobile_box_(Box{1}), n_boxes_(1)  {}
+Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
+                     cobots_box_(Box{1}), placing_(n_cobots, false), mobile_box_(Box{1}), n_boxes_(1)  {}
 
 
 void Monitor::start_write(size_t i) {
@@ -76,6 +76,9 @@ void Monitor::print_cobot_message(size_t i, Item &item, size_t n_box) {
             break;
         case 1:
             std::cout << "Cobot linea di trasporto b: ";
+            break;
+        case 2:
+            std::cout << "Cobot linea di trasporto c: ";
             break;
     }
     std::cout << "recuperato componente di tipo " << item.get_name();

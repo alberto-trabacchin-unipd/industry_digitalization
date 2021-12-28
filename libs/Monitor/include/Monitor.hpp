@@ -1,8 +1,6 @@
 #ifndef MONITOR_HPP
 #define MONITOR_HPP
 
-#define N_COBOTS 2
-
 #include <vector>
 #include <mutex>
 #include <condition_variable>
@@ -12,6 +10,7 @@
 #include "Box.hpp"
 
 extern bool shutdown;
+extern unsigned int n_cobots;
 
 
 class Monitor {
