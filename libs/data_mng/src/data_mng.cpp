@@ -156,10 +156,20 @@ void find_box(size_t id) {
     std::cout << box.get_str_items();
 }
 
-unsigned int check_input_param (int argc) {
-    if ((argc % 2) == 0 ) {
+void check_input_param (int argc) {
+    if ((argc % 2) == 0 || static_cast<unsigned int> (argc/2) != n_cobots) {
         std::cerr << "ERR: input parameters are not valid\n";
         exit(EXIT_FAILURE);
     }
-    return (argc / 2);
+}
+
+void start_mvs_threads(std::vector<std::thread> &mvs_threads, std::vector<std::string> &data_paths) {
+    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
+        mvs_threads.push_back(std::thread(mv_system_thread_fun, i, data_paths.at(i)));
+}
+
+void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]) {
+    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
+        cobot_threads.push_back(std::thread(cobot_thread_fun, i,
+                                            std::stod(argv[j]), std::stod(argv[j+1])));
 }
