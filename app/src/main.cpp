@@ -7,11 +7,12 @@
 #include "Monitor.hpp"
 
 //Parametri da impostare arbitrariamente
-const unsigned int SPEED_FAC = 10;
+const unsigned int SPEED_FAC = 1;
 unsigned int n_cobots = 2;
 
 Monitor mon;
-bool shutdown = false;
+bool shut_down = false;
+std::mutex mtx_shutdown;
 
 
 int main(int argc, char *argv[]) {

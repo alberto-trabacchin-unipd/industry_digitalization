@@ -5,11 +5,12 @@
 #include <mutex>
 #include <condition_variable>
 #include <list>
+#include <queue>
 
 #include "Item.hpp"
 #include "Box.hpp"
 
-extern bool shutdown;
+extern bool shut_down;
 extern unsigned int n_cobots;
 
 
@@ -19,7 +20,7 @@ public:
     Monitor();
 
     void start_write(size_t i);
-    void send_item_cobot(size_t i, Item &item) { item_data_.at(i) = item; };
+    void send_item_cobot(size_t i, std::queue<Item> &items_queue);
     void end_write(size_t i);
 
     void start_read(size_t i);

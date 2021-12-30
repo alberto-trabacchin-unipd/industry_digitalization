@@ -3,20 +3,22 @@
 
 #include <fstream>
 #include <chrono>
+#include <queue>
 #include "Item.hpp"
 #include "Monitor.hpp"
 
 extern Monitor mon;
 extern const unsigned int SPEED_FAC;
-extern bool shutdown;
+extern bool shut_down;
+extern std::mutex mtx_shutdown;
 
-Item read_data(std::string line);
+void read_data(std::string &data_path, std::queue<Item> &items_queue);
 unsigned int calc_waiting_sec(std::chrono::steady_clock::time_point t_begin,
                                 unsigned int MM, unsigned int SS, double conv_len, double conv_vel);
 void set_pick_time(Item &item, double conv_len, double conv_vel);
 
 //Threads function
-void mv_system_thread_fun(size_t i, std::string data_path);
+void mv_system_thread_fun(size_t i, std::string &data_path);
 void cobot_thread_fun(size_t i, double conv_len, double conv_vel);
 void mobile_robot_thread_fun();
 void my_handler(int s);

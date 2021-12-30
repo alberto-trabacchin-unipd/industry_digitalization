@@ -17,6 +17,11 @@ void Monitor::start_write(size_t i) {
     canUseData_.at(i).wait(mtx_lck, [&]{ return data_ready_.at(i) == false; });
 }
 
+void Monitor::send_item_cobot(size_t i, std::queue<Item> &items_queue) {
+    item_data_.at(i) = items_queue.front();
+    items_queue.pop();
+}
+
 void Monitor::end_write(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
     data_ready_.at(i) = true;

@@ -12,6 +12,13 @@
 #include <unistd.h>
 #include <signal.h>
 #include <iostream>
+#include <queue>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <string.h>
+#define PORT 8080
 
 #include "Item.hpp"
 #include "data_mng.h"
@@ -21,17 +28,25 @@
 auto t_start = std::chrono::steady_clock::now();
 
 
-Item read_data(std::string line) {
+void read_data(std::string &data_path, std::queue<Item> &items_queue) {
     using namespace std;
-    istringstream iss(line);
-    vector<string> words { istream_iterator<string>{iss},
-                            istream_iterator<string>{} };
-    unsigned int MM = static_cast<unsigned int> (std::stoul(words.at(0)));
-    unsigned int SS = static_cast<unsigned int> (std::stoul(words.at(1)));
-    double position = stod(words.at(3));
-    Item item{words.at(2), MM, SS, position};
+    std::string line;
 
-    return item;
+    std::ifstream stream(data_path);
+    if (!stream) {
+        std::cerr << "Cannot open " << data_path;
+        exit(EXIT_FAILURE);
+    }
+    
+    while (getline(stream, line)) {
+        istringstream iss(line);
+        vector<string> words{ istream_iterator<string>{iss},
+                                istream_iterator<string>{} };
+        unsigned int MM = static_cast<unsigned int> (std::stoul(words.at(0)));
+        unsigned int SS = static_cast<unsigned int> (std::stoul(words.at(1)));
+        double position = stod(words.at(3));
+        items_queue.push(Item{ words.at(2), MM, SS, position });
+    }
 }
 
 unsigned int calc_waiting_sec(std::chrono::steady_clock::time_point t_begin,
@@ -69,22 +84,16 @@ void set_pick_time(Item &item, double conv_len, double conv_vel) {
 }
 
 
-void mv_system_thread_fun(size_t i, std::string data_path) {
-    std::ifstream stream(data_path);
-    if (!stream) {
-        std::cerr << "Cannot open " << data_path;
-        exit(EXIT_FAILURE);
-    }
-    std::string line;
-    Item item{};
-
-    while (!shutdown && getline(stream, line)) {
+void mv_system_thread_fun(size_t i, std::string &data_path) {
+    std::queue<Item> items_queue;
+    read_data(data_path, items_queue);
+    
+    while (!shut_down) {
         mon.start_write(i);
-        item = read_data(line);
-        mon.send_item_cobot(i, item);
+        mon.send_item_cobot(i, items_queue);
         mon.end_write(i);
     }
-    std::cout << "Spegnendo MVS dopo pezzo " <<item.get_name() << std::endl;
+    std::cout << "Spegnendo sistema di visione...\n";
 }
 
 void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
@@ -95,7 +104,7 @@ void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
     Item item{};
     size_t n_box;
 
-    while (!shutdown) {
+    while (!shut_down) {
         mon.start_read(i);
         item = mon.read_item(i);
         mon.end_read(i);
@@ -104,7 +113,7 @@ void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
         unsigned int waiting_millis = calc_waiting_sec(t_start, item.get_MM(), item.get_SS(), 
                                                         conv_len, conv_vel);
         
-        std::cout << i << " deve aspettare per " << waiting_millis << " millisecondi\n";
+        //std::cout << i << " deve aspettare per " << waiting_millis << " millisecondi\n";
         std::this_thread::sleep_for(milliseconds(waiting_millis));
         set_pick_time(item, conv_len, conv_vel);
 
@@ -120,7 +129,7 @@ void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
 
 void mobile_robot_thread_fun() {
     size_t mob_box_id;
-    while (true) {
+    while (!shut_down) {
         mon.start_carry();
         mon.carry_box();
         mob_box_id = mon.get_mob_box_id();
@@ -129,11 +138,14 @@ void mobile_robot_thread_fun() {
         mon.stock_box();
         mon.print_mob_robot_message(mob_box_id);
     }
+    std::cout << "Spegnendo robot mobile...\n";
 }
 
 
 void my_handler(int s){
-    shutdown = true;
+    std::unique_lock<std::mutex> mtx_lck(mtx_shutdown);
+    shut_down = true;
+    mtx_lck.unlock();
 
     std::cout << "\nSto ordinando lo spegnimento delle thread...\n";
 }
@@ -148,10 +160,6 @@ void graceful_exit_thread_fun() {
     sigaction(SIGINT, &sigIntHandler, NULL);
 
     pause();
-}
-
-void server_thread_fun() {
-
 }
 
 void find_box(size_t id) {
@@ -175,11 +183,63 @@ void check_input_param (int argc, std::vector<std::string> &data_paths) {
 
 void start_mvs_threads(std::vector<std::thread> &mvs_threads, std::vector<std::string> &data_paths) {
     for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
-        mvs_threads.push_back(std::thread(mv_system_thread_fun, i, data_paths.at(i)));
+        mvs_threads.push_back(std::thread(mv_system_thread_fun, i, std::ref(data_paths.at(i))));
 }
 
 void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]) {
     for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
         cobot_threads.push_back(std::thread(cobot_thread_fun, i,
                                             std::stod(argv[j]), std::stod(argv[j+1])));
+}
+
+
+void server_thread_fun() {
+// Server side C/C++ program to demonstrate Socket programming
+    int server_fd, new_socket, valread;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[1024] = { 0 };
+    char* hello = "Hello from server";
+
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+        &opt, sizeof(opt)))
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr*)&address,
+        sizeof(address)) < 0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket = accept(server_fd, (struct sockaddr*)&address,
+        (socklen_t*)&addrlen)) < 0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+    valread = read(new_socket, buffer, 1024);
+    printf("%s\n", buffer);
+    send(new_socket, hello, strlen(hello), 0);
+    printf("Hello message sent\n");
 }
