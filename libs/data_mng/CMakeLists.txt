@@ -14,6 +14,7 @@ target_include_directories(data_mng
 target_link_libraries(data_mng
         PUBLIC PSE::Item
         PUBLIC PSE::Monitor
+        PUBLIC PSE::Socket
         )
 
 add_library(PSE::data_mng ALIAS data_mng)

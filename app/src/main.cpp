@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     std::thread graceful_exit_thread(graceful_exit_thread_fun);
     std::thread server_thread(server_thread_fun);
 
-    find_box(1);
+    std::this_thread::sleep_for(std::chrono::seconds(21));
+    std::cout << mon.find_box(1);
 
     for (auto &t : mvs_threads)
     t.join();

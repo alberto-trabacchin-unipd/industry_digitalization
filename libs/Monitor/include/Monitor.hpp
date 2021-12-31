@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <list>
 #include <queue>
+#include <string>
 
 #include "Item.hpp"
 #include "Box.hpp"
@@ -40,7 +41,8 @@ public:
     size_t get_mob_box_id() { return mobile_box_.get_id(); };
     void print_cobot_message(size_t i, Item &item, size_t n_box);
     void print_mob_robot_message(size_t n_box);
-    bool find_box(unsigned int id, Box &box);
+    bool find_box(size_t id, Box &box);
+    std::string find_box(size_t id);
 
 
     //Helper functions

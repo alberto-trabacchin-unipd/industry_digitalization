@@ -13,19 +13,12 @@
 #include <signal.h>
 #include <iostream>
 #include <queue>
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <string.h>
-#define PORT 2000
 
 #include "Item.hpp"
 #include "data_mng.h"
 #include "Box.hpp"
 #include "Monitor.hpp"
+#include "Socket.h"
 
 auto t_start = std::chrono::steady_clock::now();
 
@@ -168,13 +161,6 @@ void server_thread_fun() {
     
 }
 
-void find_box(size_t id) {
-    std::this_thread::sleep_for(std::chrono::seconds(40));
-    Box box{0};
-    mon.find_box(id, box);
-    std::cout << box.get_str_items();
-}
-
 void check_input_param (int argc, std::vector<std::string> &data_paths) {
     if ((argc % 2) == 0 || static_cast<unsigned int> (argc/2) != n_cobots) {
         std::cerr << "ERR: input parameters are not valid\n";
@@ -196,58 +182,4 @@ void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]) 
     for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
         cobot_threads.push_back(std::thread(cobot_thread_fun, i,
                                             std::stod(argv[j]), std::stod(argv[j+1])));
-}
-
-
-void error(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}
-
-int setup_conn()
-{
-    // Server side C/C++ program to demonstrate Socket programming
-	int server_fd, new_socket;
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
-	
-	// Creating socket file descriptor
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-	{
-		perror("socket failed");
-		exit(EXIT_FAILURE);
-	}
-	
-	// Forcefully attaching socket to the port 8080
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
-												&opt, sizeof(opt)))
-	{
-		perror("setsockopt");
-		exit(EXIT_FAILURE);
-	}
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT );
-	
-	// Forcefully attaching socket to the port 8080
-	if (bind(server_fd, (struct sockaddr *)&address,
-								sizeof(address))<0)
-	{
-		perror("bind failed");
-		exit(EXIT_FAILURE);
-	}
-	if (listen(server_fd, 3) < 0)
-	{
-		perror("listen");
-		exit(EXIT_FAILURE);
-	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
-					(socklen_t*)&addrlen))<0)
-	{
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
-    return new_socket;
 }

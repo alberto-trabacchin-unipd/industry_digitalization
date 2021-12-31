@@ -1,6 +1,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <iostream>
+#include <string>
 #include <algorithm>
 #include <iomanip>
 
@@ -90,16 +91,24 @@ void Monitor::print_mob_robot_message(size_t n_box) {
     std::cout << " e portata in magazzino\n";
 }
 
-bool Monitor::find_box(unsigned int id, Box &box) {
+bool Monitor::find_box(size_t id, Box &box) {
     std::_List_const_iterator<Box> ptr = std::find_if(storage_.cbegin(), storage_.cend(),
             [&] (Box tmp) {return (tmp.get_id() == id); });
-    if (ptr == storage_.cend()) {
-        std::unique_lock<std::mutex> cout_mtx;
-        std::cerr << "Box " << id << " does not exist\n";
+    if (ptr == storage_.cend())
         return false;
-    }
+
     else {
         box = *ptr;
         return true;
     }
+}
+
+std::string Monitor::find_box(size_t id) {
+    Box box{0};
+    std::string err_msg {"Box " + std::to_string(id) + " does not exist\n"};
+
+    if(find_box(id, box))
+        return box.get_str_items();
+    else
+        return err_msg;
 }
