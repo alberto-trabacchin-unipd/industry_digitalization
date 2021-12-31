@@ -8,7 +8,9 @@
 #include <netdb.h>
 #include <stdbool.h>
 
-#include "socket.h"
+
+#include "Socket.h"
+
 
 void client_func(int argc, char *argv[]) {
 if (argc < 3) {
@@ -60,11 +62,7 @@ if (argc < 3) {
     close(sockfd);
 }
 
-void server_func(int argc, char *argv[]) {
-if (argc < 2) {
-        fprintf(stderr, "Port No not provided. Program terminated.\n");
-        exit(EXIT_FAILURE);
-    }
+void server_func() {
 
     int sockfd, newsockfd, portno;
     char buffer[256];
@@ -77,7 +75,7 @@ if (argc < 2) {
         error("Error opening socket.\n");
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = atoi(argv[1]);
+    portno = PORT;
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -107,7 +105,7 @@ if (argc < 2) {
 
         if (n < 0) error("Error on writing\n");
 
-        if (strncmp("Bye", buffer, 3) == 0)
+        if (strncmp("stop", buffer, 4) == 0)
             break;
     }
     
@@ -115,7 +113,11 @@ if (argc < 2) {
     close(sockfd);
 } 
 
-void error(char *msg) {
+void error(char const *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
+}
+
+void prova() {
+    printf("CIao");
 }

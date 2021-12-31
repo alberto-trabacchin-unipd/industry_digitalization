@@ -5,6 +5,7 @@
 
 #include "data_mng.h"
 #include "Monitor.hpp"
+#include "Socket.h"
 
 //Parametri da impostare arbitrariamente
 const unsigned int SPEED_FAC = 1;
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]) {
     start_cobot_threads(cobots_threads, argv);
     std::thread mobile_robot_thread(mobile_robot_thread_fun);
     std::thread graceful_exit_thread(graceful_exit_thread_fun);
-    std::thread server_thread(server_thread_fun);
+    std::thread server_thread(server_func);
 
     std::this_thread::sleep_for(std::chrono::seconds(21));
     std::cout << mon.find_box(1);

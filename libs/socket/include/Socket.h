@@ -3,8 +3,9 @@
 
 #define PORT 6060
 
-void client_func();
+void client_func(int argc, char *argv[]);
 void server_func();
-void error(char *msg);
+void error(char const *msg);
+void prova();
 
 #endif

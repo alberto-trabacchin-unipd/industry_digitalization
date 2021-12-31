@@ -18,7 +18,6 @@
 #include "data_mng.h"
 #include "Box.hpp"
 #include "Monitor.hpp"
-#include "Socket.h"
 
 auto t_start = std::chrono::steady_clock::now();
 
@@ -158,7 +157,7 @@ void graceful_exit_thread_fun() {
 }
 
 void server_thread_fun() {
-    
+    //server_func();
 }
 
 void check_input_param (int argc, std::vector<std::string> &data_paths) {

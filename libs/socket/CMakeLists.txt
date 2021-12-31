@@ -5,13 +5,10 @@ project(socket_lib
         DESCRIPTION "Defines a machine vision system."
         )
 
-add_library(Socket STATIC src/Socket.c)
+add_library(Socket STATIC src/Socket.cpp)
 
 target_include_directories(Socket
         PUBLIC include
-        )
-
-target_link_libraries(Socket
         )
 
 add_library(PSE::Socket ALIAS Socket)

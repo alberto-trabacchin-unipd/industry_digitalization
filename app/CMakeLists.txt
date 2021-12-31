@@ -10,12 +10,11 @@ add_executable(application src/main.cpp)
 target_link_libraries(application
     #Link below libraries for building the application (exa. PRIVATE PSE::libraryname)
     
-    PRIVATE PSE::Box
-    PRIVATE PSE::Item
-    PRIVATE PSE::data_mng
     PRIVATE PSE::Monitor
     PRIVATE PSE::Socket
+    PRIVATE PSE::data_mng
     PRIVATE pthread
+    
 )
 
 #target_link_libraries(client)
