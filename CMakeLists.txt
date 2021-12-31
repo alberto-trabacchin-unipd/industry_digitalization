@@ -22,7 +22,7 @@ add_subdirectory(libs/Box)
 add_subdirectory(libs/Item)
 add_subdirectory(libs/Monitor)
 add_subdirectory(libs/data_mng)
-#add_subdirectory(libs/socket)
+add_subdirectory(libs/socket)
 
 
 

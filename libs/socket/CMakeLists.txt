@@ -5,13 +5,13 @@ project(socket_lib
         DESCRIPTION "Defines a machine vision system."
         )
 
-add_library(Client STATIC src/Client.cpp)
+add_library(Socket STATIC src/Socket.c)
 
-target_include_directories(Client
+target_include_directories(Socket
         PUBLIC include
         )
 
-target_link_libraries(Client
+target_link_libraries(Socket
         )
 
-add_library(PSE::Client ALIAS Client)
+add_library(PSE::Socket ALIAS Socket)

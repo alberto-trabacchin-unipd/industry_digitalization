@@ -4,7 +4,8 @@ project( Main_application
          VERSION 1.0
          DESCRIPTION "Developing main application" )
 
-add_executable(application src/main.cpp "src/client.cpp")
+add_executable(application src/main.cpp)
+#add_executable(client src/client.cpp)
 
 target_link_libraries(application
     #Link below libraries for building the application (exa. PRIVATE PSE::libraryname)
@@ -13,6 +14,8 @@ target_link_libraries(application
     PRIVATE PSE::Item
     PRIVATE PSE::data_mng
     PRIVATE PSE::Monitor
-    #PRIVATE PSE::Client
+    PRIVATE PSE::Socket
     PRIVATE pthread
 )
+
+#target_link_libraries(client)

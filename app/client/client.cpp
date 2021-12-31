@@ -4,9 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <string>
-#include <iostream>
-#define PORT 8080
+#define PORT 2000
 
 int main(int argc, char const *argv[])
 {
@@ -35,19 +33,9 @@ int main(int argc, char const *argv[])
 		printf("\nConnection Failed \n");
 		return -1;
 	}
-
-
-    std::string box_id;
-
-    while (true) {
-        std::cout << "Box id: ";
-        std::cin >> box_id;
-		char str[box_id.length() + 1];
-		strcpy(str, box_id.c_str());
-        send(sock , str , strlen(str) , 0 );
-        printf("Hello message sent\n");
-        valread = read( sock , buffer, 1024);
-        printf("%s\n",buffer );
-    }
+	send(sock , hello , strlen(hello) , 0 );
+	printf("Hello message sent\n");
+	valread = read( sock , buffer, 1024);
+	printf("%s\n",buffer );
 	return 0;
 }

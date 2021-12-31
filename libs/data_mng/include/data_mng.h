@@ -31,5 +31,6 @@ void check_input_param (int argc, std::vector<std::string> &data_paths);
 void start_mvs_threads(std::vector<std::thread> &mvs_threads, std::vector<std::string> &data_paths);
 void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]);
 void join_threads();
+int setup_conn();
 
 #endif
