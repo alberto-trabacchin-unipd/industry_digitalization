@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
 
     while (true) {
         bzero(buffer, 255);
+        printf("\nInserire l'id della scatola da cercare: ");
         fgets(buffer, 255, stdin);
         n = write(sockfd, buffer, strlen(buffer));
 
@@ -57,10 +58,14 @@ int main(int argc, char *argv[]) {
 
         if (n < 0) error("Error on reading\n");
 
-        printf("Server: %s", buffer);
-
-        if (strncmp("Bye", buffer, 3) == 0)
+        if (strncmp("stop", buffer, 4) == 0) {
+            printf("\nServer: ricevuto ordine di chiusura...\n");
+            printf("Client: chiusa connessione tcp/ip\n\n");
             break;
+        }
+        else {
+            printf("Server: %s", buffer);
+        }
     }
     close(sockfd);
 }

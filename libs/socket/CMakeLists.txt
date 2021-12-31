@@ -11,4 +11,8 @@ target_include_directories(Socket
         PUBLIC include
         )
 
+target_link_libraries(Socket
+        PUBLIC PSE::Monitor
+)
+
 add_library(PSE::Socket ALIAS Socket)

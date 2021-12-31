@@ -105,10 +105,14 @@ bool Monitor::find_box(size_t id, Box &box) {
 
 std::string Monitor::find_box(size_t id) {
     Box box{0};
-    std::string err_msg {"Box " + std::to_string(id) + " does not exist\n"};
 
-    if(find_box(id, box))
-        return box.get_str_items();
-    else
+    if(find_box(id, box)) {
+        std::string response{"La scatola n. " + std::to_string(id) + " contiene i prodotti { "};
+        response.append(box.get_str_items() + "}\n");
+        return response;
+    }
+    else {
+        std::string err_msg {"la scatola n. " + std::to_string(id) + " non esiste\n"};
         return err_msg;
+    }
 }

@@ -7,9 +7,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdbool.h>
-
+#include <sstream>
+#include <iostream>
+#include <string>
 
 #include "Socket.h"
+#include "Monitor.hpp"
 
 
 void client_func(int argc, char *argv[]) {
@@ -66,6 +69,8 @@ void server_func() {
 
     int sockfd, newsockfd, portno;
     char buffer[256];
+    std::stringstream str_value;
+    size_t box_id;
 
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t clilen;
@@ -94,23 +99,28 @@ void server_func() {
     while (true) {
         bzero(buffer, 256);
         int n = read(newsockfd, buffer, 255);
+        std::string response;
         
         if (n < 0) error("Error on reading\n");
 
-        printf("Client: %s", buffer);
-        bzero(buffer, 255);
-        fgets(buffer, 255, stdin);
+        if (strncmp("stop", buffer, 4) == 0) {
+            n = write(newsockfd, buffer, strlen(buffer));
+            if (n < 0) error("Error on writing\n");
+            close(newsockfd);
+            close(sockfd);
+            return;
+        }
+        else {
+            str_value << buffer;
+            str_value >> box_id;
+            response = mon.find_box(box_id);
+            bzero(buffer, 255);
+            strcpy(buffer, response.c_str());
+            n = write(newsockfd, buffer, strlen(buffer));
 
-        n = write(newsockfd, buffer, strlen(buffer));
-
-        if (n < 0) error("Error on writing\n");
-
-        if (strncmp("stop", buffer, 4) == 0)
-            break;
+            if (n < 0) error("Error on writing\n");
+        }
     }
-    
-    close(newsockfd);
-    close(sockfd);
 } 
 
 void error(char const *msg) {
