@@ -26,6 +26,7 @@ void Monitor::send_item_cobot(size_t i, std::queue<Item> &items_queue) {
 void Monitor::end_write(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
     data_ready_.at(i) = true;
+    mtx_lck.unlock();
     canUseData_.at(i).notify_one();
 }
 
@@ -37,6 +38,7 @@ void Monitor::start_read(size_t i) {
 void Monitor::end_read(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
     data_ready_.at(i) = false;
+    mtx_lck.unlock();
     canUseData_.at(i).notify_one();
 }
 

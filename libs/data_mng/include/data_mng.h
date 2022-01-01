@@ -12,6 +12,7 @@
 extern Monitor mon;
 extern bool shut_down;
 extern std::mutex mtx_shutdown;
+extern const unsigned int SPEED_FAC;
 
 void read_data(std::string &data_path, std::queue<Item> &items_queue);
 unsigned int calc_waiting_millis(std::chrono::steady_clock::time_point t_begin,

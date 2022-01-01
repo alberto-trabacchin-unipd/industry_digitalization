@@ -55,7 +55,7 @@ unsigned int calc_waiting_millis(std::chrono::steady_clock::time_point t_begin,
     unsigned int t_mvs = (MM * 60 + SS) * 1000;
     unsigned int waiting_time = t_mvs - elaps_time + t_conv;
 
-    return waiting_time;
+    return waiting_time / SPEED_FAC;
 
 }
 
@@ -80,7 +80,7 @@ void mv_system_thread_fun(size_t i, std::string &data_path) {
     std::queue<Item> items_queue;
     read_data(data_path, items_queue);
     
-    while (!shut_down) {
+    while (!shut_down || !items_queue.empty()) {
         mon.start_write(i);
         mon.send_item_cobot(i, items_queue);
         mon.end_write(i);
