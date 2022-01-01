@@ -8,74 +8,58 @@
 #include "Monitor.hpp"
 #include "Box.hpp"
 
+bool shut_down = false;
+
 
 Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
-                     cobots_box_(Box{1}), placing_(n_cobots, false), mobile_box_(Box{1}), n_boxes_(1)  {}
+                     cobots_box_(Box{1}), n_box_count_(1) {}
 
 
-void Monitor::start_write(size_t i) {
+void Monitor::write_data(size_t i, Item &item) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
-    canUseData_.at(i).wait(mtx_lck, [&]{ return data_ready_.at(i) == false; });
-}
-
-void Monitor::send_item_cobot(size_t i, std::queue<Item> &items_queue) {
-    item_data_.at(i) = items_queue.front();
-    items_queue.pop();
-}
-
-void Monitor::end_write(size_t i) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_data_);
+    canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == false; });
+    item_data_.at(i) = item;
     data_ready_.at(i) = true;
     mtx_lck.unlock();
     canUseData_.at(i).notify_one();
 }
 
-void Monitor::start_read(size_t i) {
+Item Monitor::read_data(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
-    canUseData_.at(i).wait(mtx_lck, [&]{ return data_ready_.at(i) == true; });
-}
-
-void Monitor::end_read(size_t i) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_data_);
+    canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == true; });
+    Item item_red = item_data_.at(i);
     data_ready_.at(i) = false;
     mtx_lck.unlock();
     canUseData_.at(i).notify_one();
-}
-
-void Monitor::start_place(size_t i) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_box_);
-  
-    while (cobots_box_.is_full() || !std::all_of(placing_.cbegin(), placing_.cend(),
-                                            [](bool placing){ return placing == false; })) {
-        canPlace.wait(mtx_lck);
-    }
-    placing_.at(i) = true;
+    return item_red;
 }
 
 void Monitor::place_item(Item &item) {
-    cobots_box_.place_item(item);
-}
-
-void Monitor::end_place(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_box_);
-    placing_.at(i) = false;
+    canPlace.wait(mtx_lck, [&] { return !cobots_box_.is_full(); });
+    cobots_box_.place_item(item);
+    mtx_lck.unlock();
+
     if (cobots_box_.is_full())
-        canCarry.notify_all();
+        canCarry.notify_one();
     else
-        canPlace.notify_all();
+        canPlace.notify_one();
 }
 
-void Monitor::start_carry() {
+Box Monitor::carry_box() {
     std::unique_lock<std::mutex> mtx_lck(mutex_box_);
     canCarry.wait(mtx_lck, [&]{ return cobots_box_.is_full(); });
+    Box mob_box = cobots_box_;
+    std::unique_lock<std::mutex> mtx_count_lck(mutex_box_count_);
+    cobots_box_ = Box{ ++n_box_count_ };
+    mtx_count_lck.unlock();
+    mtx_lck.unlock();
+    canPlace.notify_one();
+    return mob_box;
 }
 
-void Monitor::end_carry() {
-    std::unique_lock<std::mutex> mtx_lck(mutex_box_);
-    cobots_box_ = Box{++n_boxes_};
-}
 
-void Monitor::print_cobot_message(size_t i, Item &item, size_t n_box) {
+void Monitor::print_cobot_message(size_t i, Item &item) {
     std::string str {"abcdefghijklmnopqrstuvwxyz"};
     std::unique_lock<std::mutex> cout_lck(cout_mutex_);
     
@@ -84,13 +68,19 @@ void Monitor::print_cobot_message(size_t i, Item &item, size_t n_box) {
     std::cout << " al tempo " << item.get_str_time();
     std::cout << std::fixed;
     std::cout << " in posizione " << std::setprecision(2) << item.get_pos();
-    std::cout << " e inserito nella scatola " << n_box << std::endl;
+    std::unique_lock<std::mutex> mtx_lck(mutex_box_count_);
+    std::cout << " e inserito nella scatola " << n_box_count_ << std::endl;
 }
 
 void Monitor::print_mob_robot_message(size_t n_box) {
     std::unique_lock<std::mutex> cout_lck(cout_mutex_);
     std::cout << "Robot mobile: Recuperato la scatola " << n_box;
     std::cout << " e portata in magazzino\n";
+}
+
+bool Monitor::none_placing() {
+    return std::all_of(placing_.cbegin(), placing_.cend(),
+                        [](bool cobot_placing) { return cobot_placing == false; });
 }
 
 bool Monitor::find_box(size_t id, Box &box) {

@@ -7,12 +7,11 @@
 #include "Monitor.hpp"
 #include "Socket.h"
 
-//Parametro da impostare arbitrariamente
+//Parametri da impostare arbitrariamente
 unsigned int n_cobots = 2;
-const unsigned int SPEED_FAC = 2;
+const unsigned int SPEED_FAC = 10;
 
 Monitor mon;
-bool shut_down = false;
 std::mutex mtx_shutdown;
 std::mutex mtx_cout;
 

@@ -43,20 +43,17 @@ void read_data(std::string &data_path, std::queue<Item> &items_queue) {
     }
 }
 
-unsigned int calc_waiting_millis(std::chrono::steady_clock::time_point t_begin,
-                                unsigned int MM, unsigned int SS, double conv_len, double conv_vel) {
+unsigned int calc_waiting_millis(unsigned int MM, unsigned int SS, double conv_len, double conv_vel) {
                                     
     using std::chrono::steady_clock;
     using std::chrono::duration_cast;
     auto t_end = steady_clock::now();
-    unsigned int elaps_time =  static_cast<unsigned int>
-                            (duration_cast<std::chrono::milliseconds>(t_end - t_begin).count());
+    unsigned int elaps_time =  duration_cast<std::chrono::milliseconds>(t_end - t_start).count();
     unsigned int t_conv = static_cast<unsigned int> (1000 * conv_len / conv_vel);
     unsigned int t_mvs = (MM * 60 + SS) * 1000;
     unsigned int waiting_time = t_mvs / SPEED_FAC - elaps_time + t_conv / SPEED_FAC;
 
     return waiting_time;
-
 }
 
 void set_pick_time(Item &item, double conv_len, double conv_vel) {
@@ -81,54 +78,30 @@ void mv_system_thread_fun(size_t i, std::string &data_path) {
     read_data(data_path, items_queue);
     
     while (!shut_down || !items_queue.empty()) {
-        mon.start_write(i);
-        mon.send_item_cobot(i, items_queue);
-        mon.end_write(i);
+        Item tmp = items_queue.front();
+        items_queue.pop();
+        unsigned int wait_time = calc_waiting_millis(tmp.get_MM(), tmp.get_SS(), 1, 1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
+        mon.write_data(i, tmp);
     }
     std::cout << "Spegnendo sistema di visione...\n";
 }
 
 void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
-    using std::chrono::seconds;
-    using std::chrono::milliseconds;
-    using std::chrono::steady_clock;
-
-    Item item{};
-    size_t n_box;
-
     while (!shut_down) {
-        mon.start_read(i);
-        item = mon.read_item(i);
-        mon.end_read(i);
-
-        //sleep
-        unsigned int waiting_millis = calc_waiting_millis(t_start, item.get_MM(), item.get_SS(), 
-                                                        conv_len, conv_vel);
-        
-        //std::cout << i << " deve aspettare per " << waiting_millis << " millisecondi\n";
-        std::this_thread::sleep_for(milliseconds(waiting_millis));
+        Item item = mon.read_data(i);
         set_pick_time(item, conv_len, conv_vel);
-
-        mon.start_place(i);
         mon.place_item(item);
-        n_box = mon.get_n_box();
-        mon.end_place(i);
-
-        mon.print_cobot_message(i, item, n_box);
+        mon.print_cobot_message(i, item);
     }
     std::cout << "Spegnendo cobot...\n";
 }
 
 void mobile_robot_thread_fun() {
-    size_t mob_box_id;
     while (!shut_down) {
-        mon.start_carry();
-        mon.carry_box();
-        mob_box_id = mon.get_mob_box_id();
-        mon.end_carry();
-
-        mon.stock_box();
-        mon.print_mob_robot_message(mob_box_id);
+        Box mob_box = mon.carry_box();
+        mon.stock_box(mob_box);
+        mon.print_mob_robot_message(mob_box.get_id());
     }
     std::cout << "Spegnendo robot mobile...\n";
 }
