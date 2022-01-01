@@ -9,11 +9,9 @@
 
 //Parametri da impostare arbitrariamente
 unsigned int n_cobots = 2;
-const unsigned int SPEED_FAC = 10;
+const unsigned int SPEED_FAC = 1;
 
 Monitor mon;
-std::mutex mtx_shutdown;
-std::mutex mtx_cout;
 
 
 int main(int argc, char *argv[]) {

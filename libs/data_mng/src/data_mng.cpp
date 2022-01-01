@@ -19,6 +19,8 @@
 #include "Box.hpp"
 #include "Monitor.hpp"
 
+bool shut_down = false;
+std::mutex mtx_shutdown;
 auto t_start = std::chrono::steady_clock::now();
 
 
@@ -77,24 +79,26 @@ void mv_system_thread_fun(size_t i, std::string &data_path) {
     std::queue<Item> items_queue;
     read_data(data_path, items_queue);
     
-    while (!shut_down || !items_queue.empty()) {
+    while (!shut_down && !items_queue.empty()) {
         Item tmp = items_queue.front();
         items_queue.pop();
         unsigned int wait_time = calc_waiting_millis(tmp.get_MM(), tmp.get_SS(), 1, 1);
         std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
+        if (shut_down) break;
         mon.write_data(i, tmp);
     }
-    std::cout << "Spegnendo sistema di visione...\n";
+    std::cout << "Spegnendo sistema di visione " << i << "...\n";
 }
 
 void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
     while (!shut_down) {
         Item item = mon.read_data(i);
+        if (shut_down) break;
         set_pick_time(item, conv_len, conv_vel);
-        mon.place_item(item);
-        mon.print_cobot_message(i, item);
+        size_t box_id = mon.place_item(item);
+        mon.print_cobot_message(i, item, box_id);
     }
-    std::cout << "Spegnendo cobot...\n";
+    print_exit_cobot_msg(i);
 }
 
 void mobile_robot_thread_fun() {
@@ -103,29 +107,17 @@ void mobile_robot_thread_fun() {
         mon.stock_box(mob_box);
         mon.print_mob_robot_message(mob_box.get_id());
     }
-    std::cout << "Spegnendo robot mobile...\n";
+    std::cout << "Spegnendo il robot mobile...\n";
 }
 
-
-void my_handler(int s){
+void shutdown_handler(int s) {
     {UNUSED(s);}
-    std::unique_lock<std::mutex> mtx_lck(mtx_shutdown);
-    shut_down = true;
-    mtx_lck.unlock();
-
-    std::cout << "\nSto ordinando lo spegnimento delle thread...\n";
+    mon.set_shutdown();
+    std::cout << "\nSto ordinando lo spegnimento delle thread rimanenti...\n";
 }
 
 void graceful_exit_thread_fun() {
-    struct sigaction sigIntHandler;
-
-    sigIntHandler.sa_handler = my_handler;
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
-
-    sigaction(SIGINT, &sigIntHandler, NULL);
-
-    pause();
+    signal(SIGINT, shutdown_handler);
 }
 
 void check_input_param (int argc, std::vector<std::string> &data_paths) {
@@ -149,4 +141,10 @@ void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]) 
     for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
         cobot_threads.push_back(std::thread(cobot_thread_fun, i,
                                             std::stod(argv[j]), std::stod(argv[j+1])));
+}
+
+void print_exit_cobot_msg(size_t i) {
+    std::string str {"abcdefghijklmnopqrstuvwxyz"};
+    std::unique_lock<std::mutex> cout_lck(mtx_cout);
+    std::cout << "Spegnendo il cobot della linea di trasporto " << str.at(i) << "...\n";
 }

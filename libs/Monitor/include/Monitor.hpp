@@ -12,7 +12,8 @@
 #include "Box.hpp"
 
 extern unsigned int n_cobots;
-
+extern bool shut_down;
+extern std::mutex mtx_shutdown;
 
 class Monitor {
 
@@ -21,15 +22,16 @@ public:
 
     void write_data(size_t i, Item &item);
     Item read_data(size_t i);
-    void place_item(Item &item);
+    size_t place_item(Item &item);
     Box carry_box();
 
     void stock_box(Box &box) { storage_.push_back(box); };
-    void print_cobot_message(size_t i, Item &item);
+    void print_cobot_message(size_t i, Item &item, size_t box_id);
     void print_mob_robot_message(size_t n_box);
     bool none_placing();
     bool find_box(size_t id, Box &box);
     std::string find_box(size_t id);
+    void set_shutdown();
 
 
     //Helper functions
@@ -52,7 +54,7 @@ private:
 
     std::list<Box> storage_;
 
-    std::mutex cout_mutex_;
+    std::vector<bool> end_data;
 };
 
 #endif

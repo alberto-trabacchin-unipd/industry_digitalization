@@ -8,7 +8,7 @@
 #include "Monitor.hpp"
 #include "Box.hpp"
 
-bool shut_down = false;
+std::mutex mtx_cout;
 
 
 Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
@@ -26,7 +26,7 @@ void Monitor::write_data(size_t i, Item &item) {
 
 Item Monitor::read_data(size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
-    canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == true; });
+    canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == true || shut_down; });
     Item item_red = item_data_.at(i);
     data_ready_.at(i) = false;
     mtx_lck.unlock();
@@ -34,7 +34,7 @@ Item Monitor::read_data(size_t i) {
     return item_red;
 }
 
-void Monitor::place_item(Item &item) {
+size_t Monitor::place_item(Item &item) {
     std::unique_lock<std::mutex> mtx_lck(mutex_box_);
     canPlace.wait(mtx_lck, [&] { return !cobots_box_.is_full(); });
     cobots_box_.place_item(item);
@@ -44,11 +44,14 @@ void Monitor::place_item(Item &item) {
         canCarry.notify_one();
     else
         canPlace.notify_one();
+
+    std::unique_lock<std::mutex> mtx_count_lck(mutex_box_count_);
+    return n_box_count_;
 }
 
 Box Monitor::carry_box() {
     std::unique_lock<std::mutex> mtx_lck(mutex_box_);
-    canCarry.wait(mtx_lck, [&]{ return cobots_box_.is_full(); });
+    canCarry.wait(mtx_lck, [&]{ return cobots_box_.is_full() || shut_down; });
     Box mob_box = cobots_box_;
     std::unique_lock<std::mutex> mtx_count_lck(mutex_box_count_);
     cobots_box_ = Box{ ++n_box_count_ };
@@ -59,9 +62,9 @@ Box Monitor::carry_box() {
 }
 
 
-void Monitor::print_cobot_message(size_t i, Item &item) {
+void Monitor::print_cobot_message(size_t i, Item &item, size_t box_id) {
     std::string str {"abcdefghijklmnopqrstuvwxyz"};
-    std::unique_lock<std::mutex> cout_lck(cout_mutex_);
+    std::unique_lock<std::mutex> cout_lck(mtx_cout);
     
     std::cout << "Cobot linea di trasporto " << str.at(i) << ": ";
     std::cout << "recuperato componente di tipo " << item.get_name();
@@ -69,11 +72,11 @@ void Monitor::print_cobot_message(size_t i, Item &item) {
     std::cout << std::fixed;
     std::cout << " in posizione " << std::setprecision(2) << item.get_pos();
     std::unique_lock<std::mutex> mtx_lck(mutex_box_count_);
-    std::cout << " e inserito nella scatola " << n_box_count_ << std::endl;
+    std::cout << " e inserito nella scatola " << box_id << std::endl;
 }
 
 void Monitor::print_mob_robot_message(size_t n_box) {
-    std::unique_lock<std::mutex> cout_lck(cout_mutex_);
+    std::unique_lock<std::mutex> cout_lck(mtx_cout);
     std::cout << "Robot mobile: Recuperato la scatola " << n_box;
     std::cout << " e portata in magazzino\n";
 }
@@ -108,4 +111,15 @@ std::string Monitor::find_box(size_t id) {
         std::string err_msg {"la scatola n. " + std::to_string(id) + " non esiste\n"};
         return err_msg;
     }
+}
+
+void Monitor::set_shutdown() {
+    std::unique_lock<std::mutex> mtx_lck_shutdwn(mtx_shutdown);
+    shut_down = true;
+    mtx_lck_shutdwn.unlock();
+    for (size_t i = 0; i < n_cobots; i++)
+        canUseData_.at(i).notify_one();
+    canCarry.notify_one();
+    std::unique_lock<std::mutex> mtx_lck_cout(mtx_cout);
+    std::cout << "\n";
 }

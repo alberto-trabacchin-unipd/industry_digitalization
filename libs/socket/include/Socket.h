@@ -3,7 +3,7 @@
 
 #include "Monitor.hpp"
 
-#define PORT 8090
+#define PORT 8095
 
 extern Monitor mon;
 

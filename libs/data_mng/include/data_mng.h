@@ -1,18 +1,16 @@
 #ifndef DATA_MNG_H
 #define DATA_MNG_H
 
+#define UNUSED(x) (void)(x)
+
 #include <fstream>
 #include <chrono>
 #include <queue>
 #include "Item.hpp"
 #include "Monitor.hpp"
 
-#define UNUSED(x) (void)(x)
-
 
 extern Monitor mon;
-extern bool shut_down;
-extern std::mutex mtx_shutdown;
 extern std::mutex mtx_cout;
 extern const unsigned int SPEED_FAC;
 
@@ -34,5 +32,6 @@ void start_mvs_threads(std::vector<std::thread> &mvs_threads, std::vector<std::s
 void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]);
 void join_threads();
 int setup_conn();
+void print_exit_cobot_msg(size_t i);
 
 #endif
