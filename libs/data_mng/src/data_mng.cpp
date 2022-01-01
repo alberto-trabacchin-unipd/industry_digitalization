@@ -53,9 +53,9 @@ unsigned int calc_waiting_millis(std::chrono::steady_clock::time_point t_begin,
                             (duration_cast<std::chrono::milliseconds>(t_end - t_begin).count());
     unsigned int t_conv = static_cast<unsigned int> (1000 * conv_len / conv_vel);
     unsigned int t_mvs = (MM * 60 + SS) * 1000;
-    unsigned int waiting_time = t_mvs - elaps_time + t_conv;
+    unsigned int waiting_time = t_mvs / SPEED_FAC - elaps_time + t_conv / SPEED_FAC;
 
-    return waiting_time / SPEED_FAC;
+    return waiting_time;
 
 }
 

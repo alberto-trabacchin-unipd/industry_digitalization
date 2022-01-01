@@ -9,11 +9,12 @@
 
 //Parametro da impostare arbitrariamente
 unsigned int n_cobots = 2;
-const unsigned int SPEED_FAC = 1;
+const unsigned int SPEED_FAC = 2;
 
 Monitor mon;
 bool shut_down = false;
 std::mutex mtx_shutdown;
+std::mutex mtx_cout;
 
 
 int main(int argc, char *argv[]) {
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
     start_cobot_threads(cobots_threads, argv);
     std::thread mobile_robot_thread(mobile_robot_thread_fun);
     std::thread graceful_exit_thread(graceful_exit_thread_fun);
-    //std::thread server_thread(server_func);
+    std::thread server_thread(server_func);
 
     for (auto &t : mvs_threads)
     t.join();
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     mobile_robot_thread.join();
     graceful_exit_thread.join();
-    //server_thread.join();
+    server_thread.join();
 
     return 0;
 }
