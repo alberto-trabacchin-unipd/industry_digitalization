@@ -7,6 +7,8 @@
 #include "Item.hpp"
 #include "Monitor.hpp"
 
+#define UNUSED(x) (void)(x)
+
 extern Monitor mon;
 extern bool shut_down;
 extern std::mutex mtx_shutdown;
@@ -20,9 +22,7 @@ void set_pick_time(Item &item, double conv_len, double conv_vel);
 void mv_system_thread_fun(size_t i, std::string &data_path);
 void cobot_thread_fun(size_t i, double conv_len, double conv_vel);
 void mobile_robot_thread_fun();
-void my_handler(int s);
 void graceful_exit_thread_fun();
-void server_thread_fun();
 
 //Helper functions...
 void find_box(size_t id);

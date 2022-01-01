@@ -135,6 +135,7 @@ void mobile_robot_thread_fun() {
 
 
 void my_handler(int s){
+    {UNUSED(s);}
     std::unique_lock<std::mutex> mtx_lck(mtx_shutdown);
     shut_down = true;
     mtx_lck.unlock();
@@ -152,10 +153,6 @@ void graceful_exit_thread_fun() {
     sigaction(SIGINT, &sigIntHandler, NULL);
 
     pause();
-}
-
-void server_thread_fun() {
-    //server_func();
 }
 
 void check_input_param (int argc, std::vector<std::string> &data_paths) {
