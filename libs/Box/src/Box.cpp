@@ -2,10 +2,10 @@
 #include <algorithm>
 #include "Box.hpp"
 
-Box::Box(size_t id)
+Box::Box(const size_t id)
         : id_(id), avail_cap_(BOX_CAPACITY) {}
 
-void Box::place_item(Item &item) {
+void Box::place_item(const Item &item) {
     items_.push_back(item);
     avail_cap_--;
 }

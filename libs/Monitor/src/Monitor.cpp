@@ -15,7 +15,7 @@ Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_
                      cobots_box_(Box{1}), n_box_count_(1) {}
 
 
-void Monitor::write_data(size_t i, Item &item) {
+void Monitor::write_data(const size_t i, const Item &item) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
     canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == false; });
     item_data_.at(i) = item;
@@ -24,7 +24,7 @@ void Monitor::write_data(size_t i, Item &item) {
     canUseData_.at(i).notify_one();
 }
 
-Item Monitor::read_data(size_t i) {
+Item Monitor::read_data(const size_t i) {
     std::unique_lock<std::mutex> mtx_lck(mutex_data_);
     canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == true || shut_down; });
     Item item_red = item_data_.at(i);
@@ -34,7 +34,7 @@ Item Monitor::read_data(size_t i) {
     return item_red;
 }
 
-size_t Monitor::place_item(Item &item) {
+size_t Monitor::place_item(const Item &item) {
     std::unique_lock<std::mutex> mtx_lck(mutex_box_);
     canPlace.wait(mtx_lck, [&] { return !cobots_box_.is_full(); });
     cobots_box_.place_item(item);
@@ -62,7 +62,7 @@ Box Monitor::carry_box() {
 }
 
 
-void Monitor::print_cobot_message(size_t i, Item &item, size_t box_id) {
+void Monitor::print_cobot_message(const size_t i, Item &item, const size_t box_id) {
     std::string str {"abcdefghijklmnopqrstuvwxyz"};
     std::unique_lock<std::mutex> cout_lck(mtx_cout);
     
@@ -75,7 +75,7 @@ void Monitor::print_cobot_message(size_t i, Item &item, size_t box_id) {
     std::cout << " e inserito nella scatola " << box_id << std::endl;
 }
 
-void Monitor::print_mob_robot_message(size_t n_box) {
+void Monitor::print_mob_robot_message(const size_t n_box) {
     std::unique_lock<std::mutex> cout_lck(mtx_cout);
     std::cout << "Robot mobile: Recuperato la scatola " << n_box;
     std::cout << " e portata in magazzino\n";
@@ -86,7 +86,7 @@ bool Monitor::none_placing() {
                         [](bool cobot_placing) { return cobot_placing == false; });
 }
 
-bool Monitor::find_box(size_t id, Box &box) {
+bool Monitor::find_box(const size_t id, Box &box) {
     std::_List_const_iterator<Box> ptr = std::find_if(storage_.cbegin(), storage_.cend(),
             [&] (Box tmp) {return (tmp.get_id() == id); });
     if (ptr == storage_.cend())
@@ -98,7 +98,7 @@ bool Monitor::find_box(size_t id, Box &box) {
     }
 }
 
-std::string Monitor::find_box(size_t id) {
+std::string Monitor::find_box(const size_t id) {
     Box box{0};
 
     if(find_box(id, box)) {

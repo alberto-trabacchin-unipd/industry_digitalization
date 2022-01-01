@@ -24,7 +24,7 @@ std::mutex mtx_shutdown;
 auto t_start = std::chrono::steady_clock::now();
 
 
-void read_data(std::string &data_path, std::queue<Item> &items_queue) {
+void read_data(const std::string &data_path, std::queue<Item> &items_queue) {
     using namespace std;
     std::string line;
 
@@ -38,14 +38,15 @@ void read_data(std::string &data_path, std::queue<Item> &items_queue) {
         istringstream iss(line);
         vector<string> words{ istream_iterator<string>{iss},
                                 istream_iterator<string>{} };
-        unsigned int MM = static_cast<unsigned int> (std::stoul(words.at(0)));
-        unsigned int SS = static_cast<unsigned int> (std::stoul(words.at(1)));
-        double position = stod(words.at(3));
+        const unsigned int MM = static_cast<unsigned int> (std::stoul(words.at(0)));
+        const unsigned int SS = static_cast<unsigned int> (std::stoul(words.at(1)));
+        const double position = stod(words.at(3));
         items_queue.push(Item{ words.at(2), MM, SS, position });
     }
 }
 
-unsigned int calc_waiting_millis(unsigned int MM, unsigned int SS, double conv_len, double conv_vel) {
+unsigned int calc_waiting_millis(const unsigned int MM, const unsigned int SS,
+                                 const double conv_len, const double conv_vel) {
                                     
     using std::chrono::steady_clock;
     using std::chrono::duration_cast;
@@ -58,7 +59,7 @@ unsigned int calc_waiting_millis(unsigned int MM, unsigned int SS, double conv_l
     return waiting_time;
 }
 
-void set_pick_time(Item &item, double conv_len, double conv_vel) {
+void set_pick_time(Item &item, const double conv_len, const double conv_vel) {
     unsigned int delta_sec = static_cast<unsigned int> (conv_len / conv_vel);
     unsigned int minutes = delta_sec / 60;
     unsigned int seconds = delta_sec % 60;
@@ -75,22 +76,24 @@ void set_pick_time(Item &item, double conv_len, double conv_vel) {
 }
 
 
-void mv_system_thread_fun(size_t i, std::string &data_path) {
+void mv_system_thread_fun(const size_t i, const std::string &data_path,
+                          const double conv_len, const double conv_vel) {
     std::queue<Item> items_queue;
     read_data(data_path, items_queue);
     
     while (!shut_down && !items_queue.empty()) {
         Item tmp = items_queue.front();
         items_queue.pop();
-        unsigned int wait_time = calc_waiting_millis(tmp.get_MM(), tmp.get_SS(), 1, 1);
+        unsigned int wait_time = calc_waiting_millis(tmp.get_MM(), tmp.get_SS(), 
+                                                     conv_len, conv_vel);
         std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
         if (shut_down) break;
         mon.write_data(i, tmp);
     }
-    std::cout << "Spegnendo sistema di visione " << i << "...\n";
+    print_exit_mvs_msg(i);
 }
 
-void cobot_thread_fun(size_t i, double conv_len, double conv_vel) {
+void cobot_thread_fun(const size_t i, const double conv_len, const double conv_vel) {
     while (!shut_down) {
         Item item = mon.read_data(i);
         if (shut_down) break;
@@ -110,7 +113,7 @@ void mobile_robot_thread_fun() {
     std::cout << "Spegnendo il robot mobile...\n";
 }
 
-void shutdown_handler(int s) {
+void shutdown_handler(const int s) {
     {UNUSED(s);}
     mon.set_shutdown();
     std::cout << "\nSto ordinando lo spegnimento delle thread rimanenti...\n";
@@ -120,7 +123,7 @@ void graceful_exit_thread_fun() {
     signal(SIGINT, shutdown_handler);
 }
 
-void check_input_param (int argc, std::vector<std::string> &data_paths) {
+void check_input_param (int argc, const std::vector<std::string> &data_paths) {
     if ((argc % 2) == 0 || static_cast<unsigned int> (argc/2) != n_cobots) {
         std::cerr << "ERR: input parameters are not valid\n";
         exit(EXIT_FAILURE);
@@ -132,19 +135,31 @@ void check_input_param (int argc, std::vector<std::string> &data_paths) {
     }
 }
 
-void start_mvs_threads(std::vector<std::thread> &mvs_threads, std::vector<std::string> &data_paths) {
-    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
-        mvs_threads.push_back(std::thread(mv_system_thread_fun, i, std::ref(data_paths.at(i))));
+void start_mvs_threads(std::vector<std::thread> &mvs_threads,
+                            const std::vector<std::string> &data_paths, char *argv[]) {
+
+    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2) {
+        mvs_threads.push_back(std::thread(mv_system_thread_fun, i, std::ref(data_paths.at(i)),
+                                            std::stod(argv[j]), std::stod(argv[j+1])));
+    }
 }
 
 void start_cobot_threads(std::vector<std::thread> &cobot_threads, char *argv[]) {
-    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2)
+
+    for (size_t i = 0, j = 1; i < n_cobots; i++, j = j+2) {
         cobot_threads.push_back(std::thread(cobot_thread_fun, i,
                                             std::stod(argv[j]), std::stod(argv[j+1])));
+    }
 }
 
-void print_exit_cobot_msg(size_t i) {
-    std::string str {"abcdefghijklmnopqrstuvwxyz"};
+void print_exit_cobot_msg(const size_t i) {
+    const std::string str {"abcdefghijklmnopqrstuvwxyz"};
     std::unique_lock<std::mutex> cout_lck(mtx_cout);
     std::cout << "Spegnendo il cobot della linea di trasporto " << str.at(i) << "...\n";
+}
+
+void print_exit_mvs_msg(const size_t i) {
+    const std::string str {"abcdefghijklmnopqrstuvwxyz"};
+    std::unique_lock<std::mutex> cout_lck(mtx_cout);
+    std::cout << "Spegnendo il sistema di visione della linea di trasporto " << str.at(i) << "...\n";
 }

@@ -20,17 +20,17 @@ class Monitor {
 public:
     Monitor();
 
-    void write_data(size_t i, Item &item);
-    Item read_data(size_t i);
-    size_t place_item(Item &item);
+    void write_data(const size_t i, const Item &item);
+    Item read_data(const size_t i);
+    size_t place_item(const Item &item);
     Box carry_box();
 
-    void stock_box(Box &box) { storage_.push_back(box); };
-    void print_cobot_message(size_t i, Item &item, size_t box_id);
-    void print_mob_robot_message(size_t n_box);
+    void stock_box(const Box &box) { storage_.push_back(box); };
+    void print_cobot_message(const size_t i, Item &item, const size_t box_id);
+    void print_mob_robot_message(const size_t n_box);
     bool none_placing();
-    bool find_box(size_t id, Box &box);
-    std::string find_box(size_t id);
+    bool find_box(const size_t id, Box &box);
+    std::string find_box(const size_t id);
     void set_shutdown();
 
 

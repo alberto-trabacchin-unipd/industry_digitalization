@@ -9,7 +9,7 @@
 
 //Parametri da impostare arbitrariamente
 unsigned int n_cobots = 2;
-const unsigned int SPEED_FAC = 1;
+const unsigned int SPEED_FAC = 10;
 
 Monitor mon;
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     std::vector<std::thread> mvs_threads;
     std::vector<std::thread> cobots_threads;
 
-    std::vector<std::string> data_paths {
+    const std::vector<std::string> data_paths {
         "../mv_readings/arrivi_linea_a.txt",
         "../mv_readings/arrivi_linea_b.txt",
         "../mv_readings/arrivi_linea_c.txt",
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     check_input_param(argc, data_paths);
 
-    start_mvs_threads(mvs_threads, data_paths);
+    start_mvs_threads(mvs_threads, data_paths, argv);
     start_cobot_threads(cobots_threads, argv);
     std::thread mobile_robot_thread(mobile_robot_thread_fun);
     std::thread graceful_exit_thread(graceful_exit_thread_fun);
