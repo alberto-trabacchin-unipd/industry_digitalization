@@ -3,12 +3,10 @@
 
 #include "Monitor.hpp"
 
-#define PORT 6066
+#define PORT 8080
 
 extern Monitor mon;
 
-
-void client_func(int argc, char *argv[]);
 void server_func();
 void error(char const *msg);
 

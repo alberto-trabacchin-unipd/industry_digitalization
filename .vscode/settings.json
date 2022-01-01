@@ -56,7 +56,8 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "list": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "cstring": "cpp"
     },
     "cmake.configureOnOpen": false
 }

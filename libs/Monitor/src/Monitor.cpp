@@ -109,6 +109,7 @@ std::string Monitor::find_box(size_t id) {
     if(find_box(id, box)) {
         std::string response{"La scatola n. " + std::to_string(id) + " contiene i prodotti { "};
         response.append(box.get_str_items() + "}\n");
+        response.append(box.get_str_time_items());
         return response;
     }
     else {

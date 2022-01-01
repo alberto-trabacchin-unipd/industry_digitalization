@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
     while (true) {
         bzero(buffer, 255);
-        printf("\nInserire l'id della scatola da cercare: ");
+        printf("\nInserire l'id della scatola da cercare <stop per uscire>: ");
         fgets(buffer, 255, stdin);
         n = write(sockfd, buffer, strlen(buffer));
 

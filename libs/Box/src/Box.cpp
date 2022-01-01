@@ -16,3 +16,12 @@ std::string Box::get_str_items() {
                   [&](Item item) { str.append(item.get_name() + " ");});
     return str;
 }
+
+std::string Box::get_str_time_items() {
+    std::string str;
+    std::for_each(items_.cbegin(), items_.cend(), [&](Item item) {
+        str.append("\t" + item.get_name() + " -> " + item.get_str_time() + "\n");
+    });
+    
+    return str;
+}
