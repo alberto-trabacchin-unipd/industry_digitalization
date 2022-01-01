@@ -7,8 +7,7 @@
 #include "Monitor.hpp"
 #include "Socket.h"
 
-//Parametri da impostare arbitrariamente
-const unsigned int SPEED_FAC = 1;
+//Parametro da impostare arbitrariamente
 unsigned int n_cobots = 2;
 
 Monitor mon;

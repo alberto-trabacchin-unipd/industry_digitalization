@@ -28,6 +28,10 @@ void server_func() {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         error("Error opening socket.\n");
+    
+    int enable = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0)
+        error("setsockopt(SO_REUSEADDR) failed");
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
     portno = PORT;

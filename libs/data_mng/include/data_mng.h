@@ -8,12 +8,11 @@
 #include "Monitor.hpp"
 
 extern Monitor mon;
-extern const unsigned int SPEED_FAC;
 extern bool shut_down;
 extern std::mutex mtx_shutdown;
 
 void read_data(std::string &data_path, std::queue<Item> &items_queue);
-unsigned int calc_waiting_sec(std::chrono::steady_clock::time_point t_begin,
+unsigned int calc_waiting_millis(std::chrono::steady_clock::time_point t_begin,
                                 unsigned int MM, unsigned int SS, double conv_len, double conv_vel);
 void set_pick_time(Item &item, double conv_len, double conv_vel);
 
