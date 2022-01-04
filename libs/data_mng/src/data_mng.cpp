@@ -113,14 +113,11 @@ void mobile_robot_thread_fun() {
     std::cout << "Spegnendo il robot mobile...\n";
 }
 
-void shutdown_handler(const int s) {
-    {UNUSED(s);}
-    mon.set_shutdown();
-    std::cout << "\nSto ordinando lo spegnimento delle thread rimanenti...\n";
-}
-
 void graceful_exit_thread_fun() {
-    signal(SIGINT, shutdown_handler);
+    signal(SIGINT, [](int) { 
+        mon.set_shutdown();
+        std::cout << "\nSto ordinando lo spegnimento delle thread rimanenti...\n";
+    });
 }
 
 void check_input_param (int argc, const std::vector<std::string> &data_paths) {

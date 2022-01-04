@@ -1,8 +1,6 @@
 #ifndef DATA_MNG_H
 #define DATA_MNG_H
 
-#define UNUSED(x) (void)(x)
-
 #include <fstream>
 #include <chrono>
 #include <queue>
