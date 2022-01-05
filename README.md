@@ -51,7 +51,7 @@ Per eseguire correttamente il programma:
 
 1) Impostare nel programma `main.cpp` il numero di cobot **n_cobot** desiderato, **non maggiore di 6** (di default è pari a 2), e scegliere un fattore di scala **SPEED_FAC** per accelerare la simulazione (di default è pari a 10).
 
-2) Scegliere dei valori positivi di $L_1, V_1, L_2, V_2, ..., L_n, V_n$, con n pari al numero di cobot (e linee) scelto.
+2) Scegliere dei valori positivi di $L_1$, $V_1$, L_2, V_2, ..., L_n, $V_n$, con n pari al numero di cobot (e linee) scelto.
 
 3) Assicurarsi che la porta di default **8080** presente nel file Socket.h non sia già utilizzata dal sistema operativo. In tal caso sostituirla con una arbitraria, superiore a 1023.
 
