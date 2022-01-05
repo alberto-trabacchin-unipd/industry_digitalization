@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "Box.hpp"
 
+const unsigned int BOX_CAPACITY = 10;
+
 Box::Box(const size_t id)
         : id_(id), avail_cap_(BOX_CAPACITY) {}
 

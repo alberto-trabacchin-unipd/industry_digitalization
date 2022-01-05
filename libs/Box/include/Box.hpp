@@ -5,8 +5,6 @@
 #include <string>
 #include "Item.hpp"
 
-#define BOX_CAPACITY 10
-
 
 class Box {
 
