@@ -40,7 +40,7 @@ public:
 
 private:
     std::vector<Item> item_data_;
-    std::mutex mutex_data_;
+    std::vector<std::mutex> mutex_data_;
     std::vector<std::condition_variable> canUseData_;
     std::vector<bool> data_ready_;
 

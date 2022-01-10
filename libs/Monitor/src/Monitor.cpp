@@ -11,12 +11,12 @@
 std::mutex mtx_cout;
 
 
-Monitor::Monitor() : item_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
+Monitor::Monitor() : item_data_(n_cobots), mutex_data_(n_cobots), canUseData_(n_cobots), data_ready_(n_cobots, false),
                      cobots_box_(Box{1}), n_box_count_(1) {}
 
 
 void Monitor::write_data(const size_t i, const Item &item) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_data_);
+    std::unique_lock<std::mutex> mtx_lck(mutex_data_.at(i));
     canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == false; });
     item_data_.at(i) = item;
     data_ready_.at(i) = true;
@@ -25,7 +25,7 @@ void Monitor::write_data(const size_t i, const Item &item) {
 }
 
 Item Monitor::read_data(const size_t i) {
-    std::unique_lock<std::mutex> mtx_lck(mutex_data_);
+    std::unique_lock<std::mutex> mtx_lck(mutex_data_.at(i));
     canUseData_.at(i).wait(mtx_lck, [&] { return data_ready_.at(i) == true || shut_down; });
     Item item_red = item_data_.at(i);
     data_ready_.at(i) = false;
